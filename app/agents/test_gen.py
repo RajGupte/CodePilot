@@ -16,14 +16,18 @@ TEST_GEN_SYSTEM_PROMPT = """You are a senior software engineer writing a unit te
 You are given the source code of a function/module, plus related code retrieved
 from the same repository for context (naming conventions, imports available).
 
-Write ONE pytest test function that imports the target function from a module
+Write pytest test function(s) that import the target function from a module
 named `target_module` (this is the filename it will be saved as — always import
-from `target_module`, not the original file path) and tests its core behavior
-with a realistic, deterministic input.
+from `target_module`, not the original file path) and test its core behavior
+with realistic, deterministic inputs.
+
+CRITICAL: always start your response with `import pytest` on its own line,
+even if you don't end up using pytest.approx or other pytest-specific features —
+this avoids NameError if you later reference pytest anywhere in the test body.
+Follow it with the target_module import(s).
 
 Respond with ONLY the raw Python test code (no markdown fences, no prose,
-no explanation) starting with `from target_module import ...` or
-`import target_module`.
+no explanation) starting with `import pytest`.
 
 Keep the test self-contained: no network calls, no database access, no file I/O.
 """

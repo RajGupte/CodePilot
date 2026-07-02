@@ -13,27 +13,35 @@ from langgraph.graph import StateGraph, END
 
 from app.agents.triage import triage_issue
 from app.agents.review import review_diff
-from app.agents.schemas import TriageResult, ReviewResult
+from app.agents.test_gen import generate_and_run_test
+from app.agents.schemas import TriageResult, ReviewResult, TestGenResult
 from app.agents.gate import submit_for_approval
 
 
 class GraphState(TypedDict):
-    event_type: Literal["issue", "pr_diff"]
+    event_type: Literal["issue", "pr_diff", "generate_test"]
     repo_name: str
     # issue inputs
     title: Optional[str]
     body: Optional[str]
     # pr_diff inputs
     diff: Optional[str]
+    # generate_test inputs
+    source_code: Optional[str]
+    target_symbol: Optional[str]
+    target_file: Optional[str]
     # outputs
     triage_result: Optional[TriageResult]
     review_result: Optional[ReviewResult]
+    test_gen_result: Optional[TestGenResult]
 
 
-def route_event(state: GraphState) -> Literal["triage_node", "review_node"]:
+def route_event(state: GraphState) -> Literal["triage_node", "review_node", "test_gen_node"]:
     """Decide which agent handles this event."""
     if state["event_type"] == "issue":
         return "triage_node"
+    if state["event_type"] == "generate_test":
+        return "test_gen_node"
     return "review_node"
 
 
@@ -67,22 +75,42 @@ def review_node(state: GraphState) -> dict:
     return {"review_result": result}
 
 
+def test_gen_node(state: GraphState) -> dict:
+    result = generate_and_run_test(
+        source_code=state["source_code"],
+        target_symbol=state["target_symbol"],
+        target_file=state["target_file"],
+        repo_name=state["repo_name"],
+    )
+    submit_for_approval(
+        repo_name=state["repo_name"],
+        action_type="test_gen",
+        agent_output=result.model_dump(),
+        source_title=f"Generated test for {state['target_symbol']} ({state['target_file']})",
+        source_body=state["source_code"],
+    )
+    return {"test_gen_result": result}
+
+
 def build_graph():
     graph = StateGraph(GraphState)
 
     graph.add_node("triage_node", triage_node)
     graph.add_node("review_node", review_node)
+    graph.add_node("test_gen_node", test_gen_node)
 
     graph.set_conditional_entry_point(
         route_event,
         {
             "triage_node": "triage_node",
             "review_node": "review_node",
+            "test_gen_node": "test_gen_node",
         },
     )
 
     graph.add_edge("triage_node", END)
     graph.add_edge("review_node", END)
+    graph.add_edge("test_gen_node", END)
 
     return graph.compile()
 
