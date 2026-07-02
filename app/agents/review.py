@@ -66,6 +66,7 @@ Review this diff now. Respond with ONLY the JSON object."""
         system=REVIEW_SYSTEM_PROMPT,
         user=user_prompt,
         max_tokens=800,
+        trace_name="review_agent",
     )
 
     parsed = _extract_json(raw_response)

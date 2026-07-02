@@ -66,6 +66,7 @@ Classify this issue now. Respond with ONLY the JSON object."""
         system=TRIAGE_SYSTEM_PROMPT,
         user=user_prompt,
         max_tokens=500,
+        trace_name="triage_agent",
     )
 
     parsed = _extract_json(raw_response)

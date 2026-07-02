@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     # Observability
     langfuse_public_key: str | None = None
     langfuse_secret_key: str | None = None
+    langfuse_host: str | None = None
 
 
 settings = Settings()
