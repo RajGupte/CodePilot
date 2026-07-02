@@ -1,0 +1,2 @@
+[MESSAGES CONTROL]
+disable=missing-module-docstring,missing-class-docstring,missing-function-docstring,missing-final-newline,wrong-import-position,not-callable
