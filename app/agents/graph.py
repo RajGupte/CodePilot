@@ -14,6 +14,7 @@ from langgraph.graph import StateGraph, END
 from app.agents.triage import triage_issue
 from app.agents.review import review_diff
 from app.agents.schemas import TriageResult, ReviewResult
+from app.agents.gate import submit_for_approval
 
 
 class GraphState(TypedDict):
@@ -42,6 +43,13 @@ def triage_node(state: GraphState) -> dict:
         body=state["body"],
         repo_name=state["repo_name"],
     )
+    submit_for_approval(
+        repo_name=state["repo_name"],
+        action_type="triage",
+        agent_output=result.model_dump(),
+        source_title=state["title"],
+        source_body=state["body"],
+    )
     return {"triage_result": result}
 
 
@@ -49,6 +57,12 @@ def review_node(state: GraphState) -> dict:
     result = review_diff(
         diff=state["diff"],
         repo_name=state["repo_name"],
+    )
+    submit_for_approval(
+        repo_name=state["repo_name"],
+        action_type="review",
+        agent_output=result.model_dump(),
+        source_diff=state["diff"],
     )
     return {"review_result": result}
 
