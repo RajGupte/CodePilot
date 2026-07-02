@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+data/golden_dataset/*.json
+!data/golden_dataset/.gitkeep
+.pytest_cache/
+*.egg-info/
+.vscode/settings.json

@@ -1,0 +1,16 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: codepilot_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: codepilot
+      POSTGRES_PASSWORD: codepilot
+      POSTGRES_DB: codepilot
+    ports:
+      - "5432:5432"
+    volumes:
+      - codepilot_pgdata:/var/lib/postgresql/data
+
+volumes:
+  codepilot_pgdata:
