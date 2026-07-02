@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     # GitHub
     github_token: str = ""
     github_webhook_secret: str = ""
+    # Maps a real GitHub repo full_name to the repo_name used during ingestion
+    ingested_repo_name: str = "codepilot-ops"
 
     # Observability
     langfuse_public_key: str | None = None
