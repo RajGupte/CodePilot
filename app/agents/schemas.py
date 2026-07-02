@@ -30,3 +30,11 @@ class ReviewResult(BaseModel):
     overall_assessment: Literal["approve", "request_changes", "needs_discussion"]
     summary: str
     relevant_files: list[str] = Field(default_factory=list)
+
+
+class TestGenResult(BaseModel):
+    target_symbol: str
+    target_file: str
+    generated_test_code: str
+    passed: bool
+    execution_output: str = Field(description="stdout/stderr from running the test in the sandbox")
